@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e -u -x
+
+cd $(dirname $0)/..
+
+# replace info calls with VOLSTEAD
+eg -w -t atf/debug.go ./tsa
+eg -w -t atf/debug-data.go ./tsa
+
+# replace info calls with VOLSTEAD
+eg -w -t atf/info.go ./tsa
+eg -w -t atf/info-data.go ./tsa
+
+# causes compilation errors; do it last
+eg -w -t atf/error.go ./tsa
+eg -w -t atf/error-data.go ./tsa
+
+find ./tsa -name '*.go' | xargs sed -i '/VOLSTEAD/d'
+
+rg -l PATTEN ./tsa | xargs sed -i '/PATTEN/s/-/ /g'
+rg -l PATTEN ./tsa | xargs sed -i 's/"PATTEN" + \(.\+\) + "UNPATTEN"/\1/g'
